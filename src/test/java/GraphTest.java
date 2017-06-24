@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
  * Created by viacheslav on 6/23/17.
  */
 public class GraphTest {
-    public static final String JSON_PATH = "/home/viacheslav/dev/java/agt/graph/src/test/resources/graph.json";
+    public static final String JSON_PATH = "/home/viacheslav/dev/java/agt/guava-graph/src/test/resources/graph.json";
     public static final String ID_FIELD = "id";
     public static final String VALUE_FIELD = "value";
     public static final Integer EDGE_NODES_NUMBER = 2;
@@ -35,7 +35,7 @@ public class GraphTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Before
-    public void buildGraph() {
+    public void buildGraph() throws IOException {
         weightedGraph = ValueGraphBuilder.directed().build();
 
         Node<Integer> node1 = new Node<>(1, 1);
@@ -52,13 +52,13 @@ public class GraphTest {
         weightedGraph.putEdgeValue(node1, node3, 1.3);
         weightedGraph.putEdgeValue(node2, node4, 2.4);
         weightedGraph.putEdgeValue(node3, node4, 3.4);
+
+        GraphModel<Integer, Double> graphModel = graphToModel(weightedGraph);
+        mapper.writeValue(Files.newBufferedWriter(Paths.get(JSON_PATH)), graphModel);
     }
 
     @Test
     public void toJSON() throws IOException {
-        GraphModel<Integer, Double> graphModel = graphToModel(weightedGraph);
-        mapper.writeValue(Files.newBufferedWriter(Paths.get(JSON_PATH)), graphModel);
-
         JsonNode rootNode = mapper.readTree(Paths.get(JSON_PATH).toFile());
         JsonNode nodes = rootNode.findValue("nodes");
         JsonNode edges = rootNode.findValue("edges");
